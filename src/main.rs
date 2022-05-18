@@ -1,4 +1,4 @@
-use actix_web::{web, App, HttpServer, HttpRequest, Responder};
+use actix_web::{web, App, HttpServer};
 use serde::Deserialize;
 use serde_json::Value;
 
@@ -47,7 +47,8 @@ impl std::fmt::Display for AuthLink {
 
 
 // Built when this server receives a auth response from Twitter servers
-#[derive(Deserialize,Debug)]
+#[derive(Deserialize)]
+#[allow(dead_code)]
 struct AuthResponse {
 	state:String,
 	code:String,
@@ -55,7 +56,8 @@ struct AuthResponse {
 
 
 // Built when we try to convert the Auth code into an access token
-#[derive(Deserialize,Debug)]
+#[derive(Deserialize)]
+#[allow(dead_code)]
 struct AccessResponse {
 	token_type:String,
 	expires_in:u32,
@@ -70,7 +72,6 @@ struct AccessResponse {
 async fn main() -> std::io::Result<()> {
 	
 	// Generate auth link and display it in the terminal
-	// In final version this will need to be injected into a web page
 	let auth_link = AuthLink::new();
 	println!("Navigate to this link to authorize: {auth_link}");
 	
@@ -104,7 +105,7 @@ async fn main() -> std::io::Result<()> {
 }
 
 
-// The auth code needs to be converted into an access code by Twitter.
+// Converts an auth code into an access code by Twitter.
 async fn transform_auth_to_access(auth_code:&str) -> Result<AccessResponse,Box<dyn std::error::Error>>{
 	let access_response = reqwest::Client::new()
 		.post("https://api.twitter.com/2/oauth2/token")
@@ -152,5 +153,3 @@ async fn post_tweet(access_code:&str,text:&str) -> Result<serde_json::Value, Box
 		.await?;
 	Ok(resp)
 }
-
-
