@@ -46,7 +46,7 @@ impl std::fmt::Display for AuthLink {
 
 
 
-// Built when this server receives a auth response from Twitter servers
+// Built when this server receives a auth response from Twitter (delivered by the clients browser)
 #[derive(Deserialize)]
 #[allow(dead_code)]
 struct AuthResponse {
@@ -76,7 +76,7 @@ async fn main() -> std::io::Result<()> {
 	println!("Navigate to this link to authorize: {auth_link}");
 	
 
-	// Start listening, Twitter will be sending the auth code to us soon.
+	// Start listening, Twitter will be directing the clients browser to send us the auth code.
 	// We need to convert it to an access code within 30 seconds or it will expire.
     HttpServer::new(|| {
         App::new()
@@ -105,7 +105,7 @@ async fn main() -> std::io::Result<()> {
 }
 
 
-// Converts an auth code into an access code by Twitter.
+// Converts an auth code into an access code.
 async fn transform_auth_to_access(auth_code:&str) -> Result<AccessResponse,Box<dyn std::error::Error>>{
 	let access_response = reqwest::Client::new()
 		.post("https://api.twitter.com/2/oauth2/token")
